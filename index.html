@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.1/xlsx.full.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jadwal Mata Kuliah</title>
+    <style>
+        /* Styling untuk halaman */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 0;
+            text-align: center;
+        }
+        table {
+            width: 80%;
+            margin: 20px auto;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 10px;
+            text-align: center;
+        }
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+        input[type="file"] {
+            margin: 20px;
+            text-align: center;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Jadwal Mata Kuliah</h1>
+    </header>
+    
+    <input type="file" id="uploadExcel" accept=".xls,.xlsx" />
+    
+    <table id="jadwal">
+        <thead>
+            <tr>
+                <th>Kode Mata Kuliah</th>
+                <th>Nama Mata Kuliah</th>
+                <th>Hari</th>
+                <th>Jam</th>
+                <th>Dosen</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Data Jadwal akan dimuat disini -->
+        </tbody>
+    </table>
+    
+    <script>
+        // Menangani file yang diupload
+        document.getElementById('uploadExcel').addEventListener('change', handleFile, false);
+
+        function handleFile(event) {
+            const file = event.target.files[0];
+            const reader = new FileReader();
+
+            reader.onload = function(e) {
+                const data = e.target.result;
+                const workbook = XLSX.read(data, { type: 'binary' });
+                const sheetName = workbook.SheetNames[0];
+                const sheet = workbook.Sheets[sheetName];
+                const jsonData = XLSX.utils.sheet_to_json(sheet);
+                
+                populateTable(jsonData); // Memanggil fungsi untuk menampilkan data
+            };
+            
+            reader.readAsBinaryString(file); // Membaca file sebagai binary
+        }
+
+        // Fungsi untuk mempopulasi data ke dalam tabel
+        function populateTable(data) {
+            const tbody = document.getElementById('jadwal').getElementsByTagName('tbody')[0];
+            tbody.innerHTML = ''; // Mengosongkan tabel sebelum dimasukkan data baru
+
+            // Loop melalui data dan masukkan ke dalam tabel
+            data.forEach(row => {
+                const tr = document.createElement('tr');
+                
+                Object.values(row).forEach(cellValue => {
+                    const td = document.createElement('td');
+                    td.textContent = cellValue;
+                    tr.appendChild(td);
+                });
+
+                tbody.appendChild(tr);
+            });
+        }
+    </script>
+</body>
+</html>
